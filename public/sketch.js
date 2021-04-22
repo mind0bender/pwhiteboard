@@ -9,6 +9,9 @@ let socket;
 let poiC;
 let poiLayer;
 let poiSize;
+let cnv;
+let controlZone;
+let isInside = false;
 
 function setup() {
   socket = io.connect("https://pwhiteboard.herokuapp.com/");
@@ -17,7 +20,24 @@ function setup() {
   poiC = color(random(255), 100, 100, 150);
   penC = color(0);
   colorMode(RGB);
-  createCanvas(window.innerWidth, window.innerHeight - 100);
+  cnv = createCanvas(window.innerWidth, window.innerHeight - 100);
+  controlZone = document.getElementById("defaultCanvas0");
+  controlZone.addEventListener(
+    "mouseenter",
+    function (event) {
+      console.log("Enter the zone!");
+      isInside = true;
+    },
+    false
+  );
+  controlZone.addEventListener(
+    "mouseleave",
+    function (event) {
+      console.log("Leave the zone!");
+      isInside = false;
+    },
+    false
+  );
   layer = createGraphics(width, height);
   poiLayer = createGraphics(width, height);
   background(bg);
@@ -34,7 +54,7 @@ function setup() {
     colorMode(HSB);
     let pcol = color(data.color.h, 100, data.color.b, 1);
     colorMode(RGB);
-    console.log(pcol);
+    // console.log(pcol);
     layer.stroke(pcol);
     layer.strokeWeight(data.size);
     layer.line(
@@ -83,7 +103,7 @@ function setup() {
     poiLayer.ellipse(data.x * width, data.y * height, data.size * width);
   });
 
-  sizeSlider = createSlider(1, 100, penSize, 2);
+  sizeSlider = createSlider(2, 100, penSize, 2);
   let penbtn = createButton("Pen");
   penbtn.mousePressed(() => {
     if (mode !== "pen") {
@@ -149,11 +169,9 @@ function setup() {
     height
   );
   colorSlider.changed(() => {
-    colorMode(HSB);
-    if (mode === "pen") {
-      penC = color(colorSlider.value(), 255, brighSlider.value());
+    if (brighSlider.value() == 0) {
+      alert("You must increase Pen Brightness to see color.");
     }
-    colorMode(RGB);
   });
 
   createElement("p", "<b>Pen Brightness</b>").position(
@@ -177,35 +195,38 @@ function setup() {
       110,
     height
   );
-  brighSlider.changed(() => {
-    colorMode(HSB);
-    if (mode === "pen") {
-      penC = color(colorSlider.value(), 100, brighSlider.value());
-    }
-    colorMode(RGB);
-  });
-
   setInterval(() => {
     let imageBase64String = layer.elt.toDataURL();
     socket.emit("layer", imageBase64String);
     console.log("Saved", frameCount);
-  }, 10000);
+  }, 5000);
 }
 
 function draw() {
   background(bg);
   image(layer, 0, 0);
   image(poiLayer, 0, 0);
-  if (mode === "pen") {
-    cursor("./pen_cursor.png", -10, -10);
-    pen();
-  } else if (mode === "poi") {
-    cursor("pointer");
-    pointer();
-  } else if (mode === "er") {
-    eraser();
-    cursor("./er_cursor.png");
+  if (isInside) {
+    if (mode === "pen") {
+      cursor("./pen_cursor.png", -10, -10);
+      pen();
+    } else if (mode === "poi") {
+      cursor("pointer");
+      pointer();
+    } else if (mode === "er") {
+      eraser();
+      cursor("./er_cursor.png");
+    }
+  } else {
+    cursor();
   }
+}
+
+function mouseOver() {
+  print("Entered");
+}
+function mouseLeave() {
+  print("Leaving");
 }
 
 let pen = () => {
@@ -214,10 +235,13 @@ let pen = () => {
     if (!last) {
       last = current;
     }
+    colorMode(HSB);
+    penC = color(colorSlider.value(), 100, brighSlider.value());
+    colorMode(RGB);
     layer.stroke(penC);
     layer.strokeWeight(penSize);
     layer.line(last.x, last.y, current.x, current.y);
-    console.log(colorSlider.value(), brighSlider.value());
+    // console.log(colorSlider.value(), brighSlider.value());
     let data = {
       last: {
         x: last.x / width,
