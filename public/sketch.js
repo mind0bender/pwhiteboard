@@ -4,6 +4,7 @@ let mode = "pen";
 let last = null;
 let erSize;
 let penSize;
+let penC;
 let socket;
 let poiC;
 let poiLayer;
@@ -11,18 +12,21 @@ let poiSize;
 
 function setup() {
   socket = io.connect("https://pwhiteboard.herokuapp.com/");
-  poiC = color(random(255), random(255), random(255), 150);
-  let cnv = createCanvas(window.innerWidth - 60, window.innerHeight);
+  // socket = io.connect("http://localhost:8080");
+  colorMode(HSB);
+  poiC = color(random(255), 100, 100, 150);
+  penC = color(0);
+  colorMode(RGB);
+  createCanvas(window.innerWidth, window.innerHeight - 100);
   layer = createGraphics(width, height);
   poiLayer = createGraphics(width, height);
   background(bg);
-  erSize = width / 10;
-  penSize = width / 1000;
+  erSize = width / 20;
+  penSize = width / 500;
   poiSize = width / 20;
   if (poiSize > 30) poiSize = 30;
   socket.on("connection", (data) => {
     let showImg = createImg(data, "");
-    console.log(data);
     showImg.hide();
     layer.image(showImg, 0, 0, width, height);
   });
@@ -58,7 +62,6 @@ function setup() {
       150
     );
     poiLayer.clear();
-    console.log(data.last);
     poiLayer.strokeWeight(4);
     poiLayer.line(
       data.last.x * width,
@@ -76,16 +79,16 @@ function setup() {
     poiLayer.ellipse(data.x * width, data.y * height, data.size * width);
   });
 
+  sizeSlider = createSlider(1, 100, penSize, 2);
   let penbtn = createButton("Pen");
-  penbtn.position(width, 0);
   penbtn.mousePressed(() => {
     if (mode !== "pen") {
       mode = "pen";
       print("Pen Mode!");
     }
+    sizeSlider.value(penSize);
   });
   let poibtn = createButton("Pointer");
-  poibtn.position(width, 20);
   poibtn.mousePressed(() => {
     if (mode !== "poi") {
       mode = "poi";
@@ -93,23 +96,95 @@ function setup() {
     }
   });
   let erbtn = createButton("Eraser");
-  erbtn.position(width, 40);
   erbtn.mousePressed(() => {
     if (mode !== "er") {
       mode = "er";
       console.log("Eraser mode!");
+      sizeSlider.value(erSize);
     }
   });
   let clsbtn = createButton("Clear");
-  clsbtn.position(width, 60);
   clsbtn.mousePressed(() => {
     layer.clear();
     socket.emit("cls");
     console.log("Cleared the Background!");
   });
+  createElement("p", "<b>Size</b>").position(
+    penbtn.width + erbtn.width + poibtn.width + clsbtn.width + 10,
+    height - 12
+  );
+  sizeSlider.position(
+    penbtn.width + erbtn.width + poibtn.width + clsbtn.width + 40,
+    height
+  );
+  sizeSlider.changed(() => {
+    if (mode === "pen") {
+      penSize = sizeSlider.value();
+      console.log("pen :", penSize);
+    } else if (mode === "er") {
+      erSize = sizeSlider.value();
+      console.log("eraser :", erSize);
+    }
+  });
+  createElement("p", "<b>Pen Color</b>").position(
+    penbtn.width +
+      erbtn.width +
+      poibtn.width +
+      clsbtn.width +
+      50 +
+      sizeSlider.width,
+    height - 12
+  );
+  colorSlider = createSlider(0, 255, 0, 25).position(
+    penbtn.width +
+      erbtn.width +
+      poibtn.width +
+      clsbtn.width +
+      120 +
+      sizeSlider.width,
+    height
+  );
+  colorSlider.changed(() => {
+    colorMode(HSB);
+    if (mode === "pen") {
+      penC = color(colorSlider.value(), 255, brighSlider.value());
+    }
+    colorMode(RGB);
+  });
+
+  createElement("p", "<b>Pen Brightness</b>").position(
+    penbtn.width +
+      erbtn.width +
+      poibtn.width +
+      clsbtn.width +
+      130 +
+      sizeSlider.width +
+      colorSlider.width,
+    height - 12
+  );
+  brighSlider = createSlider(0, 255, 0, 25).position(
+    penbtn.width +
+      erbtn.width +
+      poibtn.width +
+      clsbtn.width +
+      130 +
+      sizeSlider.width +
+      colorSlider.width +
+      110,
+    height
+  );
+  brighSlider.changed(() => {
+    colorMode(HSB);
+    if (mode === "pen") {
+      penC = color(colorSlider.value(), 255, brighSlider.value());
+    }
+    colorMode(RGB);
+  });
+
   setInterval(() => {
     let imageBase64String = layer.elt.toDataURL();
     socket.emit("layer", imageBase64String);
+    console.log("Saved", frameCount);
   }, 10000);
 }
 
@@ -118,11 +193,14 @@ function draw() {
   image(layer, 0, 0);
   image(poiLayer, 0, 0);
   if (mode === "pen") {
+    cursor("./pen_cursor.png", -10, -10);
     pen();
   } else if (mode === "poi") {
+    cursor("pointer");
     pointer();
   } else if (mode === "er") {
     eraser();
+    cursor("./er_cursor.png");
   }
 }
 
@@ -132,7 +210,7 @@ let pen = () => {
     if (!last) {
       last = current;
     }
-    layer.stroke(0);
+    layer.stroke(penC);
     layer.strokeWeight(penSize);
     layer.line(last.x, last.y, current.x, current.y);
     let data = {
