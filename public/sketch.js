@@ -10,7 +10,7 @@ let poiLayer;
 let poiSize;
 
 function setup() {
-  socket = io.connect("http://localhost:8080");
+  socket = io.connect("https://pwhiteboard.herokuapp.com/");
   poiC = color(random(255), random(255), random(255), 150);
   let cnv = createCanvas(window.innerWidth - 60, window.innerHeight);
   layer = createGraphics(width, height);
@@ -51,6 +51,21 @@ function setup() {
   });
 
   socket.on("poi", (data) => {
+    poiLayer.stroke(
+      data.color.levels[0],
+      data.color.levels[1],
+      data.color.levels[2],
+      150
+    );
+    poiLayer.clear();
+    console.log(data.last);
+    poiLayer.strokeWeight(4);
+    poiLayer.line(
+      data.last.x * width,
+      data.last.y * height,
+      data.x * width,
+      data.y * height
+    );
     poiLayer.noStroke();
     poiLayer.fill(
       data.color.levels[0],
@@ -58,7 +73,6 @@ function setup() {
       data.color.levels[2],
       150
     );
-    poiLayer.clear();
     poiLayer.ellipse(data.x * width, data.y * height, data.size * width);
   });
 
@@ -150,8 +164,8 @@ let pointer = () => {
   line(last.x, last.y, mouseX, mouseY);
   socket.emit("poi", {
     last: {
-      x: last.x,
-      y: last.y,
+      x: last.x / width,
+      y: last.y / height,
     },
     x: mouseX / width,
     y: mouseY / height,
