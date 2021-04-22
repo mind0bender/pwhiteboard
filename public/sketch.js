@@ -110,7 +110,7 @@ function setup() {
   setInterval(() => {
     let imageBase64String = layer.elt.toDataURL();
     socket.emit("layer", imageBase64String);
-  }, 100);
+  }, 10000);
 }
 
 function draw() {
