@@ -6,15 +6,26 @@ let erSize;
 let penSize;
 let socket;
 let poiC;
+let poiLayer;
+let poiSize;
 
 function setup() {
   socket = io.connect("http://localhost:8080");
   poiC = color(random(255), random(255), random(255), 150);
-  createCanvas(window.innerWidth - 60, window.innerHeight);
+  let cnv = createCanvas(window.innerWidth - 60, window.innerHeight);
   layer = createGraphics(width, height);
+  poiLayer = createGraphics(width, height);
   background(bg);
   erSize = width / 10;
   penSize = width / 1000;
+  poiSize = width / 20;
+  if (poiSize > 30) poiSize = 30;
+  socket.on("connection", (data) => {
+    let showImg = createImg(data, "");
+    console.log(data);
+    showImg.hide();
+    layer.image(showImg, 0, 0, width, height);
+  });
   socket.on("pen", (data) => {
     layer.stroke(0);
     layer.strokeWeight(penSize);
@@ -38,6 +49,19 @@ function setup() {
       data.curr.y * height
     );
   });
+
+  socket.on("poi", (data) => {
+    poiLayer.noStroke();
+    poiLayer.fill(
+      data.color.levels[0],
+      data.color.levels[1],
+      data.color.levels[2],
+      150
+    );
+    poiLayer.clear();
+    poiLayer.ellipse(data.x * width, data.y * height, data.size * width);
+  });
+
   let penbtn = createButton("Pen");
   penbtn.position(width, 0);
   penbtn.mousePressed(() => {
@@ -69,11 +93,16 @@ function setup() {
     socket.emit("cls");
     console.log("Cleared the Background!");
   });
+  setInterval(() => {
+    let imageBase64String = layer.elt.toDataURL();
+    socket.emit("layer", imageBase64String);
+  }, 100);
 }
 
 function draw() {
   background(bg);
   image(layer, 0, 0);
+  image(poiLayer, 0, 0);
   if (mode === "pen") {
     pen();
   } else if (mode === "poi") {
@@ -112,11 +141,24 @@ let pen = () => {
 let pointer = () => {
   noStroke();
   fill(poiC);
-  ellipse(mouseX, mouseY, 20, 20);
+  if (!last) {
+    last = createVector(mouseX, mouseY);
+  }
+  ellipse(mouseX, mouseY, poiSize);
+  stroke(poiC);
+  strokeWeight(4);
+  line(last.x, last.y, mouseX, mouseY);
   socket.emit("poi", {
-    x: mouseX,
-    y: mouseY,
+    last: {
+      x: last.x,
+      y: last.y,
+    },
+    x: mouseX / width,
+    y: mouseY / height,
+    color: poiC,
+    size: poiSize / width,
   });
+  last = createVector(mouseX, mouseY);
 };
 
 let eraser = () => {
