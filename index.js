@@ -38,4 +38,7 @@ io.sockets.on("connection", (soc) => {
   soc.on("layer", (data) => {
     layer = data;
   });
+  soc.on("poicls", () => {
+    soc.broadcast.emit("poicls");
+  });
 });

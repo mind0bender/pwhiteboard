@@ -14,13 +14,13 @@ let controlZone;
 let isInside = false;
 
 function setup() {
-  socket = io.connect("https://pwhiteboard.herokuapp.com/");
-  // socket = io.connect("http://localhost:8080");
+  // socket = io.connect("https://pwhiteboard.herokuapp.com/");
+  socket = io.connect("http://localhost:8080");
   colorMode(HSB);
   poiC = color(random(255), 100, 100, 150);
   penC = color(0);
   colorMode(RGB);
-  cnv = createCanvas(window.innerWidth, window.innerHeight - 100);
+  cnv = createCanvas(window.innerWidth, (window.innerHeight * 2) / 3 - 100);
   controlZone = document.getElementById("defaultCanvas0");
   controlZone.addEventListener(
     "mouseenter",
@@ -87,12 +87,14 @@ function setup() {
     );
     poiLayer.clear();
     poiLayer.strokeWeight(4);
-    poiLayer.line(
-      data.last.x * width,
-      data.last.y * height,
-      data.x * width,
-      data.y * height
-    );
+    if (data.last.x !== data.x || data.last.y !== data.y) {
+      poiLayer.line(
+        data.last.x * width,
+        data.last.y * height,
+        data.x * width,
+        data.y * height
+      );
+    }
     poiLayer.noStroke();
     poiLayer.fill(
       data.color.levels[0],
@@ -101,6 +103,9 @@ function setup() {
       150
     );
     poiLayer.ellipse(data.x * width, data.y * height, data.size * width);
+  });
+  socket.on("poicls", () => {
+    poiLayer.clear();
   });
 
   sizeSlider = createSlider(2, 100, penSize, 2);
@@ -219,14 +224,11 @@ function draw() {
     }
   } else {
     cursor();
+    last = null;
+    if (mode === "poi") {
+      socket.emit("poicls");
+    }
   }
-}
-
-function mouseOver() {
-  print("Entered");
-}
-function mouseLeave() {
-  print("Leaving");
 }
 
 let pen = () => {
@@ -273,7 +275,9 @@ let pointer = () => {
   ellipse(mouseX, mouseY, poiSize);
   stroke(poiC);
   strokeWeight(4);
-  line(last.x, last.y, mouseX, mouseY);
+  if (last.x !== mouseX || last.y !== mouseY) {
+    line(last.x, last.y, mouseX, mouseY);
+  }
   socket.emit("poi", {
     last: {
       x: last.x / width,
