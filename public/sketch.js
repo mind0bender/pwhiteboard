@@ -31,8 +31,12 @@ function setup() {
     layer.image(showImg, 0, 0, width, height);
   });
   socket.on("pen", (data) => {
-    layer.stroke(0);
-    layer.strokeWeight(penSize);
+    colorMode(HSB);
+    let pcol = color(data.color.h, 100, data.color.b, 1);
+    colorMode(RGB);
+    console.log(pcol);
+    layer.stroke(pcol);
+    layer.strokeWeight(data.size);
     layer.line(
       data.last.x * width,
       data.last.y * height,
@@ -135,7 +139,7 @@ function setup() {
       sizeSlider.width,
     height - 12
   );
-  colorSlider = createSlider(0, 255, 0, 25).position(
+  colorSlider = createSlider(0, 360, 0, 30).position(
     penbtn.width +
       erbtn.width +
       poibtn.width +
@@ -162,7 +166,7 @@ function setup() {
       colorSlider.width,
     height - 12
   );
-  brighSlider = createSlider(0, 255, 0, 25).position(
+  brighSlider = createSlider(0, 100, 0, 5).position(
     penbtn.width +
       erbtn.width +
       poibtn.width +
@@ -176,7 +180,7 @@ function setup() {
   brighSlider.changed(() => {
     colorMode(HSB);
     if (mode === "pen") {
-      penC = color(colorSlider.value(), 255, brighSlider.value());
+      penC = color(colorSlider.value(), 100, brighSlider.value());
     }
     colorMode(RGB);
   });
@@ -213,6 +217,7 @@ let pen = () => {
     layer.stroke(penC);
     layer.strokeWeight(penSize);
     layer.line(last.x, last.y, current.x, current.y);
+    console.log(colorSlider.value(), brighSlider.value());
     let data = {
       last: {
         x: last.x / width,
@@ -222,6 +227,11 @@ let pen = () => {
         x: current.x / width,
         y: current.y / height,
       },
+      color: {
+        h: colorSlider.value(),
+        b: brighSlider.value(),
+      },
+      size: penSize,
     };
     socket.emit("pen", data);
     last = current;
