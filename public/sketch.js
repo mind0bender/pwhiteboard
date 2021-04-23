@@ -15,8 +15,8 @@ let isInside = false;
 let myaud;
 
 function setup() {
-  // socket = io.connect("https://pwhiteboard.herokuapp.com/");
-  socket = io.connect("http://localhost:8080");
+  socket = io.connect("https://pwhiteboard.herokuapp.com/");
+  // socket = io.connect("http://localhost:8080");
   colorMode(HSB);
   poiC = color(random(255), 100, 100, 150);
   penC = color(0);
