@@ -41,4 +41,7 @@ io.sockets.on("connection", (soc) => {
   soc.on("poicls", () => {
     soc.broadcast.emit("poicls");
   });
+  soc.on("mic", (data) => {
+    soc.broadcast.emit("mic", data);
+  });
 });

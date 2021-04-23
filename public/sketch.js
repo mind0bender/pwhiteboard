@@ -12,6 +12,7 @@ let poiSize;
 let cnv;
 let controlZone;
 let isInside = false;
+let myaud;
 
 function setup() {
   // socket = io.connect("https://pwhiteboard.herokuapp.com/");
@@ -20,24 +21,8 @@ function setup() {
   poiC = color(random(255), 100, 100, 150);
   penC = color(0);
   colorMode(RGB);
-  cnv = createCanvas(window.innerWidth, (window.innerHeight * 2) / 3 - 100);
+  cnv = createCanvas(window.innerWidth, window.innerHeight - 100);
   controlZone = document.getElementById("defaultCanvas0");
-  controlZone.addEventListener(
-    "mouseenter",
-    function (event) {
-      console.log("Enter the zone!");
-      isInside = true;
-    },
-    false
-  );
-  controlZone.addEventListener(
-    "mouseleave",
-    function (event) {
-      console.log("Leave the zone!");
-      isInside = false;
-    },
-    false
-  );
   layer = createGraphics(width, height);
   poiLayer = createGraphics(width, height);
   background(bg);
@@ -48,7 +33,9 @@ function setup() {
   socket.on("connection", (data) => {
     let showImg = createImg(data, "");
     showImg.hide();
-    layer.image(showImg, 0, 0, width, height);
+    setTimeout(() => {
+      layer.image(showImg, 0, 0, width, height);
+    }, 5);
   });
   socket.on("pen", (data) => {
     colorMode(HSB);
@@ -204,10 +191,14 @@ function setup() {
     let imageBase64String = layer.elt.toDataURL();
     socket.emit("layer", imageBase64String);
     console.log("Saved", frameCount);
-  }, 5000);
+  }, 2500);
+  let myStream = createCapture(VIDEO);
+  myStream.hide();
+  // console.log(myStream);
 }
 
 function draw() {
+  isInside = Boolean(mouseX <= width && mouseY <= height);
   background(bg);
   image(layer, 0, 0);
   image(poiLayer, 0, 0);
@@ -215,8 +206,9 @@ function draw() {
     if (mode === "pen") {
       cursor("./pen_cursor.png", -10, -10);
       pen();
-    } else if (mode === "poi") {
+    } else if (mode === "poi" || mode === "poiwait") {
       cursor("pointer");
+      console.log("cls");
       pointer();
     } else if (mode === "er") {
       eraser();
@@ -227,8 +219,14 @@ function draw() {
     last = null;
     if (mode === "poi") {
       socket.emit("poicls");
+      mode = "poiwait";
+      console.log("cls");
     }
   }
+}
+
+function touchStarted() {
+  getAudioContext().resume();
 }
 
 let pen = () => {
@@ -243,7 +241,6 @@ let pen = () => {
     layer.stroke(penC);
     layer.strokeWeight(penSize);
     layer.line(last.x, last.y, current.x, current.y);
-    // console.log(colorSlider.value(), brighSlider.value());
     let data = {
       last: {
         x: last.x / width,
