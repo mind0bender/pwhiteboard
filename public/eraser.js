@@ -19,6 +19,7 @@ let eraser = () => {
         x: current.x / width,
         y: current.y / height,
       },
+      size: erSize,
     };
     socket.emit("erase", data);
     last = current;
