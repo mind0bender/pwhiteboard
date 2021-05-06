@@ -18,20 +18,23 @@ let txtFun = () => {
 
 let showTxt = () => {
   txtLayer.clear();
-  poiLayer.clear();
   for (ele of texts) {
     txtLayer.textSize(ele.size);
     txtLayer.colorMode(HSB);
     txtLayer.fill(ele.h, 255, ele.b);
     txtLayer.text(ele.txt, ele.pos.x * width, ele.pos.y * height);
   }
-  // print(texts);
 };
 
 function keyPressed() {
   if (mode === "txt" && txtPos != null) {
     if (key == "Backspace") {
-      currTxt = currTxt.slice(0, currTxt.length - 1);
+      poiLayer.clear();
+      if (emojis.includes(currTxt.slice(currTxt.length - 2, currTxt.length))) {
+        currTxt = currTxt.slice(0, currTxt.length - 2);
+      } else {
+        currTxt = currTxt.slice(0, currTxt.length - 1);
+      }
     } else if (bannedKeys.includes(key)) {
     } else if (key === "Enter") {
       currTxt += "\n";
@@ -40,15 +43,23 @@ function keyPressed() {
     }
     if (currTxt.slice(currTxt.length - 3, currTxt.length) === ":-)") {
       currTxt = currTxt.slice(0, currTxt.length - 3) + "🙂";
+      poiLayer.clear();
     }
     if (currTxt.slice(currTxt.length - 3, currTxt.length) === ":-(") {
       currTxt = currTxt.slice(0, currTxt.length - 3) + "🙁";
+      poiLayer.clear();
     }
     if (currTxt.slice(currTxt.length - 3, currTxt.length) === ":-|") {
       currTxt = currTxt.slice(0, currTxt.length - 3) + "😐";
+      poiLayer.clear();
     }
     if (currTxt.slice(currTxt.length - 3, currTxt.length) === ";-)") {
       currTxt = currTxt.slice(0, currTxt.length - 3) + "😉";
+      poiLayer.clear();
+    }
+    if (currTxt.slice(currTxt.length - 3, currTxt.length) === ":-\\") {
+      currTxt = currTxt.slice(0, currTxt.length - 3) + "😕";
+      poiLayer.clear();
     }
     texts[texts.length - 1] = {
       ...texts[texts.length - 1],
