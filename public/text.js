@@ -1,20 +1,27 @@
 let txtFun = () => {
   cursor("Text");
   layer.textSize(txtSize);
-  if (mouseIsPressed) {
+  print(texts);
+};
+
+function mousePressed() {
+  if (mode === "txt" && isInside) {
     txtPos = createVector(mouseX / width, mouseY / height);
     let data = {
-      pos: txtPos,
+      pos: {
+        x: txtPos.x,
+        y: txtPos.y,
+      },
       txt: "",
       h: colorSlider.value(),
       b: brighSlider.value(),
       size: sizeSlider.value(),
     };
     texts.push(data);
-    // socket.emit("newText", data)
+    socket.emit("newText", data);
     currTxt = "";
   }
-};
+}
 
 let showTxt = () => {
   txtLayer.clear();

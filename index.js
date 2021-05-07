@@ -2,6 +2,7 @@ const chalk = require("chalk");
 const express = require("express");
 const socket = require("socket.io");
 let layer = null;
+let clients = [];
 
 let PORT = process.env.PORT || 8080;
 const app = express();
@@ -17,9 +18,26 @@ let server = app.listen(PORT, () => {
 
 let io = socket(server);
 
+let showAllClients = () => {
+  console.clear();
+  console.log();
+  for (let i = 0; i < clients.length; i++) {
+    if (!clients[i].disconnected) {
+      if (i == clients.length - 1) {
+        console.log(chalk.yellowBright(chalk.bold(`• ${clients[i].id} `)));
+      } else {
+        console.log(chalk.cyanBright(chalk.bold(`• ${clients[i].id} `)));
+      }
+    }
+  }
+  console.log(
+    chalk.cyanBright(chalk.bold(`\n  Total connections: ${clients.length} `))
+  );
+};
+
 io.sockets.on("connection", (soc) => {
-  console.log(chalk.bgCyan(chalk.black(chalk.bold(`Got a new Connection`))));
-  console.log("id :", soc.id);
+  clients.push(soc);
+  showAllClients();
   if (layer !== null) {
     soc.emit("connection", layer);
   }
@@ -35,7 +53,7 @@ io.sockets.on("connection", (soc) => {
   soc.on("erase", (data) => {
     soc.broadcast.emit("erase", data);
   });
-  soc.on("layer", (data) => {
+  soc.on("newData", (data) => {
     layer = data;
   });
   soc.on("poicls", () => {
@@ -43,5 +61,12 @@ io.sockets.on("connection", (soc) => {
   });
   soc.on("mic", (data) => {
     soc.broadcast.emit("mic", data);
+  });
+  soc.on("newTxt", (data) => {
+    soc.broadcast.emit("newTxt", data);
+  });
+  soc.on("disconnect", () => {
+    clients.splice(clients.indexOf(soc), 1);
+    showAllClients();
   });
 });
