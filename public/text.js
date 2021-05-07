@@ -1,7 +1,6 @@
 let txtFun = () => {
   cursor("Text");
   layer.textSize(txtSize);
-  print(texts);
 };
 
 function mousePressed() {
@@ -18,7 +17,7 @@ function mousePressed() {
       size: sizeSlider.value(),
     };
     texts.push(data);
-    socket.emit("newText", data);
+    socket.emit("newTxt", data);
     currTxt = "";
   }
 }
@@ -31,12 +30,19 @@ let showTxt = () => {
     txtLayer.fill(ele.h, 255, ele.b);
     txtLayer.text(ele.txt, ele.pos.x * width, ele.pos.y * height);
   }
+  for (ele of otherTxt) {
+    txtLayer.textSize(ele.size);
+    txtLayer.colorMode(HSB);
+    txtLayer.fill(ele.h, 255, ele.b);
+    txtLayer.text(ele.txt, ele.pos.x * width, ele.pos.y * height);
+  }
 };
 
 function keyPressed() {
   if (mode === "txt" && txtPos != null) {
     if (key == "Backspace") {
       poiLayer.clear();
+      socket.emit("poicls");
       if (emojis.includes(currTxt.slice(currTxt.length - 2, currTxt.length))) {
         currTxt = currTxt.slice(0, currTxt.length - 2);
       } else {
@@ -51,22 +57,27 @@ function keyPressed() {
     if (currTxt.slice(currTxt.length - 3, currTxt.length) === ":-)") {
       currTxt = currTxt.slice(0, currTxt.length - 3) + "🙂";
       poiLayer.clear();
+      socket.emit("poicls");
     }
     if (currTxt.slice(currTxt.length - 3, currTxt.length) === ":-(") {
       currTxt = currTxt.slice(0, currTxt.length - 3) + "🙁";
       poiLayer.clear();
+      socket.emit("poicls");
     }
     if (currTxt.slice(currTxt.length - 3, currTxt.length) === ":-|") {
       currTxt = currTxt.slice(0, currTxt.length - 3) + "😐";
       poiLayer.clear();
+      socket.emit("poicls");
     }
     if (currTxt.slice(currTxt.length - 3, currTxt.length) === ";-)") {
       currTxt = currTxt.slice(0, currTxt.length - 3) + "😉";
       poiLayer.clear();
+      socket.emit("poicls");
     }
     if (currTxt.slice(currTxt.length - 3, currTxt.length) === ":-\\") {
       currTxt = currTxt.slice(0, currTxt.length - 3) + "😕";
       poiLayer.clear();
+      socket.emit("poicls");
     }
     texts[texts.length - 1] = {
       ...texts[texts.length - 1],
@@ -76,5 +87,6 @@ function keyPressed() {
       txtPos = null;
       currTxt = "";
     }
+    socket.emit("txtData", currTxt);
   }
 }

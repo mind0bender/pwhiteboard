@@ -65,6 +65,9 @@ io.sockets.on("connection", (soc) => {
   soc.on("newTxt", (data) => {
     soc.broadcast.emit("newTxt", data);
   });
+  soc.on("txtData", (data) => {
+    soc.broadcast.emit("txtData", data);
+  });
   soc.on("disconnect", () => {
     clients.splice(clients.indexOf(soc), 1);
     showAllClients();
