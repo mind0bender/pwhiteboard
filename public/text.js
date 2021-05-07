@@ -79,6 +79,11 @@ function keyPressed() {
       poiLayer.clear();
       socket.emit("poicls");
     }
+    if (currTxt.slice(currTxt.length - 2, currTxt.length) === ":P") {
+      currTxt = currTxt.slice(0, currTxt.length - 2) + "🤪";
+      poiLayer.clear();
+      socket.emit("poicls");
+    }
     texts[texts.length - 1] = {
       ...texts[texts.length - 1],
       txt: currTxt,
