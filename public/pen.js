@@ -2,7 +2,7 @@ let pen = () => {
   if (mouseIsPressed) {
     if (!lazy) {
       lazy = new LazyBrush({
-        radius: 30,
+        radius: 20,
         enabled: true,
         initialPoint: { x: mouseX, y: mouseY },
       });
@@ -16,6 +16,11 @@ let pen = () => {
     // Lazy Brush
     lastCords = lazy.getBrushCoordinates();
     lazy.update({ x: mouseX, y: mouseY });
+    lazy.setRadius(
+      parseInt(
+        createVector(mouseX, mouseY).dist(createVector(pmouseX, pmouseY))
+      ) * 2
+    );
     cords = lazy.getBrushCoordinates();
     layer.line(lastCords.x, lastCords.y, cords.x, cords.y);
 
