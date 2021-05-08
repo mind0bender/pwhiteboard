@@ -1,35 +1,39 @@
 let pointer = () => {
+  if (!lazy) {
+    lazy = new LazyBrush({
+      radius: 20,
+      enabled: true,
+      initialPoint: { x: mouseX, y: mouseY },
+    });
+  }
   noStroke();
   fill(poiC.levels[0], poiC.levels[1], poiC.levels[2], 150);
-  if (!last) {
-    last = createVector(mouseX, mouseY);
-  }
+  lazy.update({ x: mouseX, y: mouseY });
+  lazy.setRadius(
+    parseInt(
+      createVector(mouseX, mouseY).dist(createVector(pmouseX, pmouseY))
+    ) * 2
+  );
+  cords = lazy.getBrushCoordinates();
   poiPos.push({
-    x: mouseX / width,
-    y: mouseY / height,
+    x: cords.x / width,
+    y: cords.y / height,
   });
-  if (mouseIsPressed) {
-    thrs = 50;
-  } else {
-    thrs = 10;
+  if (!mouseIsPressed) {
+    while (poiPos.length > 10) {
+      poiPos.shift();
+    }
   }
-  while (poiPos.length > thrs) {
-    poiPos.shift();
-  }
-  ellipse(mouseX, mouseY, poiSize);
+
+  ellipse(cords.x, cords.y, poiSize);
   showPois();
   socket.emit("poi", {
-    last: {
-      x: last.x / width,
-      y: last.y / height,
-    },
-    x: mouseX / width,
-    y: mouseY / height,
+    x: cords.x / width,
+    y: cords.y / height,
     color: poiC,
     size: poiSize / width,
     arr: poiPos,
   });
-  last = createVector(mouseX, mouseY);
 };
 
 let showPois = () => {
