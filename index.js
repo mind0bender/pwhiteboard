@@ -1,7 +1,10 @@
 const chalk = require("chalk");
 const express = require("express");
 const socket = require("socket.io");
-let layer = null;
+let layer = {
+  img: null,
+  txt: [],
+};
 let clients = [];
 
 let PORT = process.env.PORT || 8080;
@@ -38,7 +41,7 @@ let showAllClients = () => {
 io.sockets.on("connection", (soc) => {
   clients.push(soc);
   showAllClients();
-  if (layer !== null) {
+  if (layer.img !== null) {
     soc.emit("connection", layer);
   }
   soc.on("pen", (data) => {
@@ -64,9 +67,14 @@ io.sockets.on("connection", (soc) => {
   });
   soc.on("newTxt", (data) => {
     soc.broadcast.emit("newTxt", data);
+    layer.txt.push(data);
   });
   soc.on("txtData", (data) => {
     soc.broadcast.emit("txtData", data);
+    layer.txt[layer.txt.length - 1] = {
+      ...layer.txt[layer.txt.length - 1],
+      txt: data,
+    };
   });
   soc.on("disconnect", () => {
     clients.splice(clients.indexOf(soc), 1);

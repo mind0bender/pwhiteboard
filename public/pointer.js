@@ -15,12 +15,20 @@ let pointer = () => {
     ) * 2
   );
   cords = lazy.getBrushCoordinates();
+  if (!mouseIsPressed) {
+    poiPos.shift();
+  }
   poiPos.push({
     x: cords.x / width,
     y: cords.y / height,
   });
+  let extra = poiPos.length;
   if (!mouseIsPressed) {
-    while (poiPos.length > 10) {
+    for (i = 0; i < extra / 20; i++) {
+      poiPos.shift();
+    }
+  } else {
+    if (poiPos.length > 50) {
       poiPos.shift();
     }
   }
