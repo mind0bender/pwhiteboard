@@ -31,7 +31,6 @@ let newTxt = (
 
 let showTxt = () => {
   txtLayer.clear();
-  poiLayer.clear();
   for (ele of texts) {
     txtLayer.textSize(ele.size);
     txtLayer.colorMode(HSB);
@@ -127,8 +126,9 @@ function keyPressed() {
         txtPos = null;
         currTxt = "";
       }
-      console.log("Sending text data");
+      // console.log("Sending text data");
       socket.emit("txtData", currTxt);
+      socket.emit("poicls");
     }
     lastKeys.push(key);
   }
