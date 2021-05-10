@@ -1,10 +1,15 @@
+require("dotenv").config();
 const chalk = require("chalk");
 const express = require("express");
 const socket = require("socket.io");
+const blankCanvas = require("./blankCanvas");
+let layers = [];
+
 let layer = {
-  img: null,
+  img: blankCanvas,
   txt: [],
 };
+let index = -1;
 let clients = [];
 
 let PORT = process.env.PORT || 8080;
@@ -41,7 +46,7 @@ let showAllClients = () => {
 io.sockets.on("connection", (soc) => {
   clients.push(soc);
   showAllClients();
-  if (layer.img !== null) {
+  if (layer.img !== blankCanvas) {
     soc.emit("connection", layer);
   }
   soc.on("pen", (data) => {
@@ -51,13 +56,23 @@ io.sockets.on("connection", (soc) => {
     soc.broadcast.emit("poi", data);
   });
   soc.on("cls", () => {
+    layers.push(JSON.stringify(layer));
     soc.broadcast.emit("cls");
+    layer = {
+      img: blankCanvas,
+      txt: [],
+    };
+    layers.push(JSON.stringify(layer));
+    index = layers.length;
   });
   soc.on("erase", (data) => {
     soc.broadcast.emit("erase", data);
   });
   soc.on("newData", (data) => {
-    layer = data;
+    layer.img = data;
+    layers.push(JSON.stringify(layer));
+    index = layers.length;
+    console.log("NewData", index);
   });
   soc.on("poicls", () => {
     soc.broadcast.emit("poicls");
@@ -79,5 +94,14 @@ io.sockets.on("connection", (soc) => {
   soc.on("disconnect", () => {
     clients.splice(clients.indexOf(soc), 1);
     showAllClients();
+  });
+  soc.on("undo", () => {
+    if (index > 0) {
+      index--;
+      console.log(layers[index] == layers[index - 1]);
+      soc.emit("undo", JSON.parse(layers[index]));
+      soc.broadcast.emit("undo", JSON.parse(layers[index]));
+      console.log("Undoing", index);
+    }
   });
 });
