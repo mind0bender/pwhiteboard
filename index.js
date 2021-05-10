@@ -3,13 +3,13 @@ const chalk = require("chalk");
 const express = require("express");
 const socket = require("socket.io");
 const blankCanvas = require("./blankCanvas");
-let layers = [];
 
 let layer = {
   img: blankCanvas,
   txt: [],
 };
-let index = -1;
+let layers = [JSON.stringify(layer)];
+let index = 0;
 let clients = [];
 
 let PORT = process.env.PORT || 8080;
@@ -20,7 +20,11 @@ app.use(express.static("public"));
 let server = app.listen(PORT, () => {
   console.clear();
   console.log(
-    chalk.bold(chalk.cyanBright(`Server started on PORT ${PORT} at ${Date()}`))
+    chalk.cyanBright(
+      `  Server started on PORT ${chalk.underline(
+        chalk.bold(PORT)
+      )} at ${Date()}`
+    )
   );
 });
 
@@ -28,7 +32,19 @@ let io = socket(server);
 
 let showAllClients = () => {
   console.clear();
+  console.log(
+    chalk.cyanBright(
+      `  Server started on PORT ${chalk.underline(
+        chalk.bold(PORT)
+      )} at ${Date()}`
+    )
+  );
   console.log();
+
+  console.log(chalk.bold(chalk.whiteBright("  Clients connected")));
+
+  console.log();
+
   for (let i = 0; i < clients.length; i++) {
     if (!clients[i].disconnected) {
       if (i == clients.length - 1) {
@@ -46,8 +62,8 @@ let showAllClients = () => {
 io.sockets.on("connection", (soc) => {
   clients.push(soc);
   showAllClients();
-  if (layer.img !== blankCanvas) {
-    soc.emit("connection", layer);
+  if (JSON.parse(layers[index]).img !== blankCanvas) {
+    soc.emit("connection", JSON.parse(layers[index]));
   }
   soc.on("pen", (data) => {
     soc.broadcast.emit("pen", data);
@@ -56,29 +72,34 @@ io.sockets.on("connection", (soc) => {
     soc.broadcast.emit("poi", data);
   });
   soc.on("cls", () => {
+    if (layers.length > 50) {
+      layers.shift();
+    }
     layers.push(JSON.stringify(layer));
     soc.broadcast.emit("cls");
     layer = {
       img: blankCanvas,
       txt: [],
     };
+    if (layers.length > 50) {
+      layers.shift();
+    }
     layers.push(JSON.stringify(layer));
-    index = layers.length;
+    index = layers.length - 1;
   });
   soc.on("erase", (data) => {
     soc.broadcast.emit("erase", data);
   });
   soc.on("newData", (data) => {
     layer.img = data;
+    if (layers.length > 50) {
+      layers.shift();
+    }
     layers.push(JSON.stringify(layer));
-    index = layers.length;
-    console.log("NewData", index);
+    index = layers.length - 1;
   });
   soc.on("poicls", () => {
     soc.broadcast.emit("poicls");
-  });
-  soc.on("mic", (data) => {
-    soc.broadcast.emit("mic", data);
   });
   soc.on("newTxt", (data) => {
     soc.broadcast.emit("newTxt", data);
@@ -98,10 +119,24 @@ io.sockets.on("connection", (soc) => {
   soc.on("undo", () => {
     if (index > 0) {
       index--;
-      console.log(layers[index] == layers[index - 1]);
       soc.emit("undo", JSON.parse(layers[index]));
       soc.broadcast.emit("undo", JSON.parse(layers[index]));
-      console.log("Undoing", index);
+    } else {
+      console.log("Sending blankCanvas");
+      soc.emit("undo", {
+        img: blankCanvas,
+        txt: [],
+      });
+      soc.broadcast.emit("undo", JSON.parse(layers[index]));
+    }
+  });
+  soc.on("redo", () => {
+    if (index < layers.length - 1) {
+      index++;
+      soc.emit("redo", JSON.parse(layers[index]));
+      soc.broadcast.emit("redo", JSON.parse(layers[index]));
+    } else {
+      console.log("Already at latest index");
     }
   });
 });
