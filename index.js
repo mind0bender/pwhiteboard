@@ -62,9 +62,10 @@ let showAllClients = () => {
 io.sockets.on("connection", (soc) => {
   clients.push(soc);
   showAllClients();
-  if (JSON.parse(layers[index]).img !== blankCanvas) {
-    soc.emit("connection", JSON.parse(layers[index]));
-  }
+  soc.emit("connection", {
+    prevData: JSON.parse(layers[index]),
+    id: soc.id,
+  });
   soc.on("pen", (data) => {
     soc.broadcast.emit("pen", data);
   });
