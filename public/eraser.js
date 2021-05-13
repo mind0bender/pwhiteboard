@@ -23,8 +23,17 @@ let eraser = () => {
     };
     socket.emit("erase", data);
     last = current;
+    wasActive = isActive;
+    isActive = true;
   } else {
     last = null;
+    isActive = false;
+    if (wasActive) {
+      setTimeout(() => {
+        wasActive = false;
+        socket.emit("poicls");
+      }, 1000);
+    }
   }
   if (isActive) {
     sendUserData();
