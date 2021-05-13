@@ -67,7 +67,10 @@ io.sockets.on("connection", (soc) => {
     id: soc.id,
   });
   soc.on("pen", (data) => {
-    soc.broadcast.emit("pen", data);
+    soc.broadcast.emit("pen", {
+      ...data,
+      id: soc.id,
+    });
   });
   soc.on("poi", (data) => {
     soc.broadcast.emit("poi", data);
@@ -139,5 +142,8 @@ io.sockets.on("connection", (soc) => {
     } else {
       console.log("Already at latest index");
     }
+  });
+  soc.on("userData", (data) => {
+    soc.broadcast.emit("userData", data);
   });
 });

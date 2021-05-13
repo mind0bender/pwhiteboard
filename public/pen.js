@@ -44,4 +44,7 @@ let pen = () => {
   } else {
     lazy = null;
   }
+  if (isActive) {
+    sendUserData();
+  }
 };

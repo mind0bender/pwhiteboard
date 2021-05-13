@@ -26,4 +26,7 @@ let eraser = () => {
   } else {
     last = null;
   }
+  if (isActive) {
+    sendUserData();
+  }
 };
