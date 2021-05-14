@@ -43,7 +43,13 @@ let pen = () => {
     last = cords;
     wasActive = isActive;
     isActive = true;
+    if (wasActive) {
+      sendUserData();
+    }
   } else {
+    if (wasActive) {
+      sendUserData();
+    }
     lazy = null;
     isActive = false;
     if (wasActive) {
@@ -52,8 +58,5 @@ let pen = () => {
         socket.emit("poicls");
       }, 1000);
     }
-  }
-  if (wasActive) {
-    sendUserData();
   }
 };
