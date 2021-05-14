@@ -7,5 +7,4 @@ let myCls = () => {
 let sendCls = () => {
   myCls();
   socket.emit("cls");
-  console.log("Cleared everything!");
 };
