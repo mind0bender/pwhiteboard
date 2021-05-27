@@ -3,7 +3,7 @@ function keyPressed() {
     keysPressed.push(key);
   }
   if (
-    lastKeys[lastKeys.length - 1] == "Control" &&
+    keysPressed.includes("Control") &&
     (key == "z" || key == "Z" || key == "y" || key == "Y")
   ) {
     if (key == "y" || key == "Y") {

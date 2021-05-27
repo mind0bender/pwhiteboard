@@ -34,7 +34,7 @@ let showAllClients = () => {
   console.clear();
   console.log(
     chalk.cyanBright(
-      `  Server started on PORT ${chalk.underline(
+      `\nServer started on PORT ${chalk.underline(
         chalk.bold(PORT)
       )} at ${Date()}`
     )
@@ -48,9 +48,21 @@ let showAllClients = () => {
   for (let i = 0; i < clients.length; i++) {
     if (!clients[i].disconnected) {
       if (i == clients.length - 1) {
-        console.log(chalk.yellowBright(chalk.bold(`• ${clients[i].id} `)));
+        console.log(
+          chalk.yellowBright(
+            chalk.bold(
+              `• ${clients[i].name ? clients[i].name : clients[i].id} `
+            )
+          )
+        );
       } else {
-        console.log(chalk.cyanBright(chalk.bold(`• ${clients[i].id} `)));
+        console.log(
+          chalk.cyanBright(
+            chalk.bold(
+              `• ${clients[i].name ? clients[i].name : clients[i].id} `
+            )
+          )
+        );
       }
     }
   }
@@ -66,6 +78,7 @@ io.sockets.on("connection", (soc) => {
     prevData: JSON.parse(layers[index]),
     id: soc.id,
   });
+  soc.broadcast.emit("newClient", soc.id);
   soc.on("pen", (data) => {
     soc.broadcast.emit("pen", {
       ...data,
@@ -131,7 +144,10 @@ io.sockets.on("connection", (soc) => {
         img: blankCanvas,
         txt: [],
       });
-      soc.broadcast.emit("undo", JSON.parse(layers[index]));
+      soc.broadcast.emit("undo", {
+        img: blankCanvas,
+        txt: [],
+      });
     }
   });
   soc.on("redo", () => {
@@ -140,10 +156,17 @@ io.sockets.on("connection", (soc) => {
       soc.emit("redo", JSON.parse(layers[index]));
       soc.broadcast.emit("redo", JSON.parse(layers[index]));
     } else {
-      console.log("Already at latest index");
+      console.log("Already at latest Canvas");
     }
   });
   soc.on("userData", (data) => {
     soc.broadcast.emit("userData", data);
+  });
+  soc.on("newName", (data) => {
+    if (data && data !== "") {
+      soc.name = data;
+    }
+    showAllClients();
+    soc.broadcast.emit("newUser", soc.name ? soc.name : soc.id);
   });
 });
