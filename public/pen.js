@@ -15,7 +15,14 @@ let pen = () => {
 
     // Lazy Brush
     lastCords = lazy.getBrushCoordinates();
-    lazy.update({ x: mouseX, y: mouseY });
+    let currCords = createVector(mouseX, mouseY);
+    if (keysPressed.includes("x") || keysPressed.includes("X")) {
+      currCords.y = lastCords.y;
+    }
+    if (keysPressed.includes("y") || keysPressed.includes("Y")) {
+      currCords.x = lastCords.x;
+    }
+    lazy.update(currCords);
     lazy.setRadius(
       parseInt(
         createVector(mouseX, mouseY).dist(createVector(pmouseX, pmouseY))
