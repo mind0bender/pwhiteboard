@@ -87,6 +87,14 @@ function keyPressed() {
     }
     lastKeys.push(key);
   }
+  if (
+    keysPressed.includes("Control") &&
+    keysPressed.includes("Shift") &&
+    (keysPressed.includes("l") || keysPressed.includes("L"))
+  ) {
+    sendCls();
+    console.log("clear using key");
+  }
 }
 
 function keyReleased() {
