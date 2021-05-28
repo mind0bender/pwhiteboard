@@ -90,14 +90,27 @@ function keyPressed() {
   if (
     keysPressed.includes("Control") &&
     keysPressed.includes("Shift") &&
-    (keysPressed.includes("l") || keysPressed.includes("L"))
+    (keysPressed.includes("l") || keysPressed.includes("L")) &&
+    keysPressed.length === 3
   ) {
     sendCls();
-    console.log("clear using key");
   }
 }
 
 function keyReleased() {
   indexOfKey = keysPressed.indexOf(key);
   keysPressed.splice(indexOfKey, 1);
+}
+
+function mousePressed() {
+  newTxt();
+  if (penHolded) {
+    pen();
+    penHolded = false;
+  }
+  if (mouseButton === RIGHT && mode === "pen") {
+    pen();
+    penHolded = true;
+  }
+  return false;
 }

@@ -3,10 +3,6 @@ let txtFun = () => {
   layer.textSize(txtSize);
 };
 
-function mousePressed() {
-  newTxt();
-}
-
 let newTxt = (
   initPos = createVector(mouseX / width, mouseY / height),
   initTxt = ""
