@@ -104,11 +104,11 @@ function keyReleased() {
 
 function mousePressed() {
   newTxt();
-  if (penHolded) {
+  if (penHolded && isInside) {
     pen();
     penHolded = false;
   }
-  if (mouseButton === RIGHT && mode === "pen") {
+  if (mouseButton === RIGHT && mode === "pen" && isInside) {
     pen();
     penHolded = true;
   }

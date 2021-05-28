@@ -42,8 +42,11 @@ let showAllClients = () => {
   );
   console.log();
 
-  console.log(chalk.bold(chalk.whiteBright("  Clients connected")));
-
+  if (clients.length > 0) {
+    console.log(chalk.bold(chalk.whiteBright("  Clients connected")));
+  } else {
+    console.log(chalk.bold(chalk.whiteBright("  No  Clients connected")));
+  }
   console.log();
 
   for (let i = 0; i < clients.length; i++) {
@@ -133,6 +136,7 @@ io.sockets.on("connection", (soc) => {
   soc.on("disconnect", () => {
     clients.splice(clients.indexOf(soc), 1);
     showAllClients();
+    soc.broadcast.emit("userDisconnect", soc.name ? soc.name : soc.id);
   });
   soc.on("undo", () => {
     if (index > 0) {
