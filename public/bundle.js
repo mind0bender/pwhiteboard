@@ -5,9 +5,9 @@ const { LazyBrush } = require("lazy-brush");
 
 window.LazyBrush = LazyBrush;
 
-window.process = process;
+window.myprocess = process;
 
-console.log(process);
+console.log(myprocess);
 
 }).call(this)}).call(this,require('_process'))
 },{"_process":9,"dotenv":2,"lazy-brush":6}],2:[function(require,module,exports){

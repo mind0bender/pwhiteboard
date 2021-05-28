@@ -32,6 +32,7 @@ let io = socket(server);
 
 let showAllClients = () => {
   console.clear();
+  console.log(process.env);
   console.log(
     chalk.cyanBright(
       `\nServer started on PORT ${chalk.underline(
