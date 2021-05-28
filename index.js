@@ -13,6 +13,7 @@ let index = 0;
 let clients = [];
 
 let PORT = process.env.PORT || 8080;
+let isDev = process.env.NODE_ENV !== "production";
 const app = express();
 
 app.use(express.static("public"));
@@ -32,7 +33,6 @@ let io = socket(server);
 
 let showAllClients = () => {
   console.clear();
-  console.log(process.env);
   console.log(
     chalk.cyanBright(
       `\nServer started on PORT ${chalk.underline(
@@ -171,3 +171,5 @@ io.sockets.on("connection", (soc) => {
     soc.broadcast.emit("newUser", soc.name ? soc.name : soc.id);
   });
 });
+
+module.exports = isDev;
