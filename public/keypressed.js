@@ -112,5 +112,7 @@ function mousePressed() {
     pen();
     penHolded = true;
   }
-  return false;
+  if (isInside) {
+    return false;
+  }
 }

@@ -45,7 +45,7 @@ let pen = () => {
           h: colorSlider.value(),
           b: brighSlider.value(),
         },
-        size: penSize,
+        size: penSize / height,
       };
       socket.emit("pen", data);
       last = cords;
