@@ -7,6 +7,8 @@ window.LazyBrush = LazyBrush;
 
 window.process = process;
 
+console.log(process);
+
 }).call(this)}).call(this,require('_process'))
 },{"_process":9,"dotenv":2,"lazy-brush":6}],2:[function(require,module,exports){
 (function (process){(function (){
