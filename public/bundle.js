@@ -4,7 +4,7 @@ const { LazyBrush } = require("lazy-brush");
 
 window.LazyBrush = LazyBrush;
 
-window.process = process;
+window.myprocess = process;
 
 }).call(this)}).call(this,require('_process'))
 },{"_process":6,"lazy-brush":5}],2:[function(require,module,exports){
