@@ -15,8 +15,8 @@ let newTxt = (
         y: txtPos.y,
       },
       txt: initTxt,
-      h: colorSlider.value(),
-      b: brighSlider.value(),
+      // h: colorSlider.value(),
+      // b: brighSlider.value(),
       size: sizeSlider.value(),
     };
     texts.push(data);

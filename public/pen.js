@@ -8,8 +8,9 @@ let pen = () => {
           initialPoint: { x: mouseX, y: mouseY },
         });
       }
-      colorMode(HSB);
-      penC = color(colorSlider.value(), 100, brighSlider.value());
+      // colorMode(HSB);
+      // penC = color(colorSlider.value(), 100, brighSlider.value());
+      penC = colorPicker.color();
       colorMode(RGB);
       layer.stroke(penC);
       layer.strokeWeight(penSize);
@@ -42,8 +43,8 @@ let pen = () => {
           y: cords.y / height,
         },
         color: {
-          h: colorSlider.value(),
-          b: brighSlider.value(),
+          // h: colorSlider.value(),
+          // b: brighSlider.value(),
         },
         size: penSize / height,
       };

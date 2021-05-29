@@ -1,0 +1,27 @@
+button:hover {
+  background-color: rgb(100, 100, 100);
+  color: #fff;
+  padding: 6px;
+  margin: 4px;
+}
+button {
+  cursor: pointer;
+  transition-duration: 100ms;
+  font-family: "Courier New", monospace;
+  border-radius: 20px;
+  padding: 10px;
+  font-weight: bolder;
+  margin-bottom: 5px;
+  outline: none;
+  box-shadow: 3px 3px 15px #ddd;
+}
+input {
+  margin-top: 5px;
+  cursor: pointer;
+}
+canvas {
+  box-shadow: 1px 1px 15px #ddd;
+}
+body {
+  background-color: #ddd;
+}
