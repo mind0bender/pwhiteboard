@@ -94,6 +94,7 @@ function keyPressed() {
     keysPressed.length === 3
   ) {
     sendCls();
+    console.log("cls using keys");
   }
 }
 

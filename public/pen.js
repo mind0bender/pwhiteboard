@@ -42,10 +42,7 @@ let pen = () => {
           x: cords.x / width,
           y: cords.y / height,
         },
-        color: {
-          // h: colorSlider.value(),
-          // b: brighSlider.value(),
-        },
+        color: [penC.levels[0], penC.levels[1], penC.levels[2]],
         size: penSize / height,
       };
       socket.emit("pen", data);
