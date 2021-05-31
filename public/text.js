@@ -21,6 +21,7 @@ let newTxt = (
     texts.push(data);
     socket.emit("newTxt", data);
     currTxt = "";
+    focusStealer.focus();
   }
 };
 
