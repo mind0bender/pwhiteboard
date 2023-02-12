@@ -1,7 +1,7 @@
 require("dotenv").config();
-const chalk = require("chalk");
 const express = require("express");
 const socket = require("socket.io");
+const cors = require("cors");
 const blankCanvas = require("./blankCanvas");
 
 let layer = {
@@ -17,62 +17,37 @@ let isDev = process.env.NODE_ENV !== "production";
 const app = express();
 
 app.use(express.static("public"));
+app.use(cors({}));
 
 let server = app.listen(PORT, () => {
   console.clear();
-  console.log(
-    chalk.cyanBright(
-      `  Server started on PORT ${chalk.underline(
-        chalk.bold(PORT)
-      )} at ${Date()}`
-    )
-  );
+  console.log(`  Server started on PORT ${PORT} at ${Date()}`);
 });
 
-let io = socket(server);
+let io = socket(server, { cors: true });
 
 let showAllClients = () => {
   console.clear();
-  console.log(
-    chalk.cyanBright(
-      `\nServer started on PORT ${chalk.underline(
-        chalk.bold(PORT)
-      )} at ${Date()}`
-    )
-  );
+  console.log(`\nServer started on PORT ${PORT} at ${Date()}`);
   console.log();
 
   if (clients.length > 0) {
-    console.log(chalk.bold(chalk.whiteBright("  Clients connected")));
+    console.log("  Clients connected");
   } else {
-    console.log(chalk.bold(chalk.whiteBright("  No  Clients connected")));
+    console.log("  No  Clients connected");
   }
   console.log();
 
   for (let i = 0; i < clients.length; i++) {
     if (!clients[i].disconnected) {
       if (i == clients.length - 1) {
-        console.log(
-          chalk.yellowBright(
-            chalk.bold(
-              `• ${clients[i].name ? clients[i].name : clients[i].id} `
-            )
-          )
-        );
+        console.log(`• ${clients[i].name ? clients[i].name : clients[i].id} `);
       } else {
-        console.log(
-          chalk.cyanBright(
-            chalk.bold(
-              `• ${clients[i].name ? clients[i].name : clients[i].id} `
-            )
-          )
-        );
+        console.log(`• ${clients[i].name ? clients[i].name : clients[i].id} `);
       }
     }
   }
-  console.log(
-    chalk.cyanBright(chalk.bold(`\n  Total connections: ${clients.length} `))
-  );
+  console.log(`\n  Total connections: ${clients.length} `);
 };
 
 io.sockets.on("connection", (soc) => {
